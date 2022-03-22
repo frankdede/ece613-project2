@@ -138,3 +138,5 @@ node_modules
 
 # webpack related
 webpack-stats*.json
+
+training_labels.jsonl
