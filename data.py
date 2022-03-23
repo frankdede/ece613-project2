@@ -1,16 +1,24 @@
+import pandas as pd
 from torch.utils.data.dataset import Dataset
+from torchvision.io import read_image
 
 
-class DataLoader(Dataset):
-    def __init__(self, annotation_file, img_dir, transform=None, target_transform=None):
-        self.img_labels = {0: "crazing", 1: "inclusion", 2: "patches",
-                           3: "pitted_surface", 4: "rolled-in_scale", 5: "scratches"}
-        self.img_dir = pd.
+class DAGMDataset(Dataset):
+    def __init__(self, meta_file, transform=None, target_transform=None):
+        self.meta_df = pd.read_csv(meta_file)
         self.transform = transform
         self.target_transform = target_transform
 
     def __len__(self):
-        return len(self.img_labels)
+        return len(self.meta_df)
 
     def __getitem__(self, idx):
-        img_path =
+        img_path = self.meta_df["img_file"].iloc[idx]
+        image = read_image(img_path)
+        label = self.meta_df["class"].iloc[idx]
+
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            label = self.target_transform(label)
+        return image, label
