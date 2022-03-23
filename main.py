@@ -11,8 +11,8 @@ def run():
     num_classes = 10
     ohe = Lambda(lambda y: torch.zeros(num_classes, dtype=torch.float).scatter_(dim=0, index=torch.tensor(y), value=1))
 
-    training_set = DAGMDataset(meta_file=TRAINING_LABEL_FILE_PATH, target_transform=ohe)
-    testing_set = DAGMDataset(meta_file=TEST_LABEL_FILE_PATH, target_transform=ohe)
+    training_set = DAGMDataset(meta_file=TRAINING_LABEL_FILE_PATH, target_transform=ohe, defect_only=True)
+    testing_set = DAGMDataset(meta_file=TEST_LABEL_FILE_PATH, target_transform=ohe, defect_only=True)
 
     train_dataloader = DataLoader(training_set, batch_size=64, shuffle=True)
     test_dataloader = DataLoader(testing_set, batch_size=64, shuffle=True)

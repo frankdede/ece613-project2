@@ -4,10 +4,15 @@ from torchvision.io import read_image
 
 
 class DAGMDataset(Dataset):
-    def __init__(self, meta_file, transform=None, target_transform=None):
-        self.meta_df = pd.read_csv(meta_file)
+    def __init__(self, meta_file, transform=None, target_transform=None, defect_only=False):
+        meta_df = pd.read_csv(meta_file)
+        if defect_only:
+            self.meta_df = meta_df[meta_df["has_defect"] == 1]
+        else:
+            self.meta_df = meta_df
         self.transform = transform
         self.target_transform = target_transform
+        self.defect_only = defect_only
 
     def __len__(self):
         return len(self.meta_df)
