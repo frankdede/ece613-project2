@@ -141,3 +141,4 @@ webpack-stats*.json
 
 # generated metadata
 metadata/
+DAGM/
