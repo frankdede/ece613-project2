@@ -48,8 +48,8 @@ if __name__ == '__main__':
         mask_img[y: y + h, x: x + w] = 255
 
         img_filename = os.path.basename(img_path)
-        print(img_path)
-        cv2.imwrite(os.path.join(MER_OUTPUT, f'bounded_{img_filename}'), bounded_img)
-        cv2.imwrite(os.path.join(MER_OUTPUT, f'bounded_bin_{img_filename}'), bounded_bin_img)
-        cv2.imwrite(os.path.join(MER_OUTPUT, f'mask_{img_filename}'), mask_img)
-        cv2.imwrite(os.path.join(MER_OUTPUT, f'crop_{img_filename}'), crop_img)
+        name, ext = img_filename.split('.')
+        cv2.imwrite(os.path.join(MER_OUTPUT, f'{name}_bounded.{ext}'), bounded_img)
+        cv2.imwrite(os.path.join(MER_OUTPUT, f'{name}_bounded_bin.{ext}'), bounded_bin_img)
+        cv2.imwrite(os.path.join(MER_OUTPUT, f'{name}_mask.{ext}'), mask_img)
+        cv2.imwrite(os.path.join(MER_OUTPUT, f'{name}_crop.{ext}'), crop_img)
