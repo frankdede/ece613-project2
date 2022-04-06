@@ -34,17 +34,27 @@ if __name__ == '__main__':
 
     Path(MER_OUTPUT).mkdir(parents=True, exist_ok=True)
 
+    # load some images
     for img, img_path in zip(train_features, img_paths):
+        # flatten multi channel image into single channel image
         img_np = to_numpy(img).squeeze()
+
+        # set the new pixel value to 1 if the original one is greater than `threshold` else 0
         bin_img = binarize(img_np, 200)
         x, y, w, h = mer(bin_img)
 
+        # find the bounding box and draw it on the original image
         bounded_img = cv.rectangle(np.copy(img_np), (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        # find the bounding box and draw it on the binarized image
         bounded_bin_img = cv.rectangle(np.copy(bin_img) * 255, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+        # crop the bounded region
         crop_img = img_np[y: y + h, x: x + w]
 
         mask_img = np.zeros(img_np.shape)
+
+        # please the image writer by converting 0s and 1s to 0s and 255s
         mask_img[y: y + h, x: x + w] = 255
 
         img_filename = os.path.basename(img_path)
