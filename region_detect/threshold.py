@@ -10,6 +10,7 @@ from pathlib import Path
 
 import os
 
+RGB_WHITE = (255, 255, 255)
 
 def to_numpy(img):
     return img.clone().detach().cpu().numpy()
@@ -44,10 +45,10 @@ if __name__ == '__main__':
         x, y, w, h = mer(bin_img)
 
         # find the bounding box and draw it on the original image
-        bounded_img = cv.rectangle(np.copy(img_np), (x, y), (x + w, y + h), (0, 255, 0), 2)
+        bounded_img = cv.rectangle(np.copy(img_np), (x, y), (x + w, y + h), RGB_WHITE, 2)
 
         # find the bounding box and draw it on the binarized image
-        bounded_bin_img = cv.rectangle(np.copy(bin_img) * 255, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        bounded_bin_img = cv.rectangle(np.copy(bin_img) * 255, (x, y), (x + w, y + h), RGB_WHITE, 2)
 
         # crop the bounded region
         crop_img = img_np[y: y + h, x: x + w]
