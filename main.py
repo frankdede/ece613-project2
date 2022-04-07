@@ -5,7 +5,7 @@ from torchvision.transforms import Lambda
 from data import DAGMDataset
 from settings import TRAINING_LABEL_FILE_PATH, TEST_LABEL_FILE_PATH
 import matplotlib.pyplot as plt
-
+from cmp_cnn import train, test
 
 def run():
     num_classes = 10
@@ -33,6 +33,8 @@ def run():
     print(f"Image path: {image_path}")
     print(f"Has defect: {has_defect}")
     print(f"Defect image path: {defect_mask_path}")
+
+    train(train_dataloader,1)
 
 
 if __name__ == '__main__':
