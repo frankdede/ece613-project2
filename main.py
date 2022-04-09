@@ -34,7 +34,8 @@ def run():
     print(f"Has defect: {has_defect}")
     print(f"Defect image path: {defect_mask_path}")
 
-    train(train_dataloader,1)
+    # net = train(train_dataloader,1)
+    # test(net, test_dataloader)
 
 
 if __name__ == '__main__':

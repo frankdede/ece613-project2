@@ -53,7 +53,7 @@ def train(dataloader, epoch):
             loss.backward()
             optimizer.step()
             # print statistics
-            if i % 100 == 99:    
+            if i % 20 == 19:    
                 print(f'[{epochnum + 1}, {i + 1:5d}] loss: {loss.item():.3f}')
 
     print('Finished Training')
@@ -74,5 +74,6 @@ def test(net, dataloader):
             _, predicted = torch.max(outputs.data, 1)
             total += reshapedlabel.size(0)
             correct += (predicted == reshapedlabel).sum().item()
+    print("Accuracy:" , correct // total)
     return correct // total
 
