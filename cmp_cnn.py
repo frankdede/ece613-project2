@@ -42,7 +42,7 @@ def train(dataloader, epoch):
     for epochnum in range(epoch):  # loop over the dataset multiple times
         for i, data in enumerate(dataloader, 0):
             # get the inputs; data is a list of [inputs, labels]
-            train_features, train_labels, img_paths, has_defects, defect_mask_paths  = data
+            train_features, train_labels, img_paths, has_defects, defect_mask_paths, _= data
             img = sampler(train_features,227).float()
             reshapedlabel = torch.sum(train_labels * torch.linspace(0,9,10),axis=1).long()
             # zero the parameter gradients
