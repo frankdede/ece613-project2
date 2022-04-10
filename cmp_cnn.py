@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from sampler import sampler
 from settings import CNN_DICT
+import matplotlib.pyplot as plt
+import numpy as np
 
 NUM_CLASS = 10
 
@@ -42,17 +44,16 @@ def train(dataloader, epoch, net = Net()):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.0001)
     for epochnum in range(epoch):  # loop over the dataset multiple times
-        for i, data in enumerate(dataloader, 0):
+        for i, data in enumerate(dataloader):
             train_features, train_labels, img_paths, has_defects, defect_mask_paths,defect_masks  = data
             img = sampler(train_features,227).float()
-            reshapedlabel = torch.sum(train_labels * torch.linspace(0,NUM_CLASS-1,NUM_CLASS),axis=1).long()
             optimizer.zero_grad()
             outputs = net(img)
-            loss = criterion(outputs, reshapedlabel)
+            loss = criterion(outputs, train_labels)
             loss.backward()
             optimizer.step()
             # print statistics
-            if i % 20 == 19:    
+            if i % 5 == 4:    
                 print(f'[{epochnum + 1}, {i + 1:5d}] loss: {loss.item():.3f}')
 
     print('Finished Training')
@@ -61,18 +62,28 @@ def train(dataloader, epoch, net = Net()):
     
 def test(net, dataloader):
     confusion = torch.zeros([NUM_CLASS,NUM_CLASS])
-    total = 0
     with torch.no_grad():
         for data in dataloader:
             image, label, img_path, has_defect, defect_mask_path,defect_masks  = data
             img = sampler(image,227).float()
-            reshapedlabel = torch.sum(label * torch.linspace(0,NUM_CLASS-1,NUM_CLASS),axis=1).long()
             outputs = net(img)
             _, predicted = torch.max(outputs.data, 1)
-            total += reshapedlabel.size(0)
-            confusion[reshapedlabel,predicted] = confusion[reshapedlabel,predicted]+ 1
-    print("Confusion matrix:")
-    print( confusion)
-    print( confusion / total)
-    return confusion / total
+            for i in range(label.size(0)):
+                confusion[label[i],predicted[i]] = confusion[label[i],predicted[i]]+ 1
+    sum = confusion.sum(axis=1).reshape([NUM_CLASS,1])
+    print_heatmap( confusion/sum)
+    return confusion/sum 
+
+def print_heatmap(torchre):
+    results = torchre.clone().detach().cpu().numpy()
+    fig, ax = plt.subplots(figsize=(10,6))
+    im = ax.imshow(results)
+    ax.set_xticks(range(NUM_CLASS))
+    ax.set_yticks(range(NUM_CLASS))
+    for i in range(NUM_CLASS):
+        for j in range(NUM_CLASS):
+            ax.text(j, i, round(results[i][j],3),ha="center", va="center", color="w")
+    ax.set_title("Confusion matrix")
+    fig.tight_layout()
+    plt.show()
 
