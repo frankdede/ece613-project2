@@ -23,16 +23,12 @@ class CnnDataset(DAGMDataset):
 def run():
     training_set = CnnDataset(meta_file=TRAINING_LABEL_FILE_PATH)
     testing_set = CnnDataset(meta_file=TEST_LABEL_FILE_PATH)
-
     train_dataloader = DataLoader(training_set, batch_size=64,shuffle=True)
     test_dataloader = DataLoader(testing_set, batch_size=64,shuffle=True)
-    print(len(train_dataloader.dataset))
-    print(len(test_dataloader.dataset))
-
-
+    
     net = Net()
     net.load_state_dict(torch.load(CNN_DICT))
-    # net = train(train_dataloader,1,net = net)
+    # net = train(train_dataloader,3,net = net)
     test(net,test_dataloader)
 
 

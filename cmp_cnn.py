@@ -72,6 +72,7 @@ def test(net, dataloader):
                 confusion[label[i],predicted[i]] = confusion[label[i],predicted[i]]+ 1
     sum = confusion.sum(axis=1).reshape([NUM_CLASS,1])
     print_heatmap( confusion/sum)
+    print("Overall accuracy: ",confusion.diagonal().sum()/sum.sum())
     return confusion/sum 
 
 def print_heatmap(torchre):
