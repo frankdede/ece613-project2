@@ -40,5 +40,6 @@ for root, dirs, files in sorted(os.walk(DAGM_DIR)):
 df[df["is_training"] == 1].to_csv(os.path.join(DATASET_META_DIR, "training_set.csv"), index=False)
 df[df["is_training"] == 0].to_csv(os.path.join(DATASET_META_DIR, "test_set.csv"), index=False)
 
+print(len(df[df["has_defect"] == 1]))
 # print(f"Number of defective training samples {len(training_labels)}")
 # print(f"Number of test labels {len(test_labels)}"))

@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from sampler import sampler
+from settings import CNN_DICT
+
+NUM_CLASS = 10
 
 class Net(nn.Module):
     def __init__(self):
@@ -19,7 +22,7 @@ class Net(nn.Module):
         self.pool3 = nn.MaxPool2d(3,stride=2) # (11-3)/2+1 = 5
         self.fc1 = nn.Linear(5*5*128, 1000)
         self.fc2 = nn.Linear(1000,256)
-        self.fc3 = nn.Linear(256,10)
+        self.fc3 = nn.Linear(256,NUM_CLASS)
         self.sf = nn.Softmax(dim=1)
     def forward(self, x):
         x = self.pool1(self.batchnorm1(F.relu(self.conv1(x))))
@@ -35,19 +38,15 @@ class Net(nn.Module):
         x = self.sf(x)
         return x
 
-def train(dataloader, epoch):
-    net = Net()
+def train(dataloader, epoch, net = Net()):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.0001)
     for epochnum in range(epoch):  # loop over the dataset multiple times
         for i, data in enumerate(dataloader, 0):
-            # get the inputs; data is a list of [inputs, labels]
-            train_features, train_labels, img_paths, has_defects, defect_mask_paths  = data
+            train_features, train_labels, img_paths, has_defects, defect_mask_paths,defect_masks  = data
             img = sampler(train_features,227).float()
-            reshapedlabel = torch.sum(train_labels * torch.linspace(0,9,10),axis=1).long()
-            # zero the parameter gradients
+            reshapedlabel = torch.sum(train_labels * torch.linspace(0,NUM_CLASS-1,NUM_CLASS),axis=1).long()
             optimizer.zero_grad()
-            # forward + backward + optimize
             outputs = net(img)
             loss = criterion(outputs, reshapedlabel)
             loss.backward()
@@ -57,23 +56,23 @@ def train(dataloader, epoch):
                 print(f'[{epochnum + 1}, {i + 1:5d}] loss: {loss.item():.3f}')
 
     print('Finished Training')
+    torch.save(net.state_dict(), CNN_DICT)
     return net
     
 def test(net, dataloader):
-    correct = 0
+    confusion = torch.zeros([NUM_CLASS,NUM_CLASS])
     total = 0
-    # since we're not training, we don't need to calculate the gradients for our outputs
     with torch.no_grad():
         for data in dataloader:
-            image, label, img_path, has_defect, defect_mask_path  = data
+            image, label, img_path, has_defect, defect_mask_path,defect_masks  = data
             img = sampler(image,227).float()
-            reshapedlabel = torch.sum(label * torch.linspace(1,10,10),axis=1).long()
-            # calculate outputs by running images through the network
+            reshapedlabel = torch.sum(label * torch.linspace(0,NUM_CLASS-1,NUM_CLASS),axis=1).long()
             outputs = net(img)
-            # the class with the highest energy is what we choose as prediction
             _, predicted = torch.max(outputs.data, 1)
             total += reshapedlabel.size(0)
-            correct += (predicted == reshapedlabel).sum().item()
-    print("Accuracy:" , correct // total)
-    return correct // total
+            confusion[reshapedlabel,predicted] = confusion[reshapedlabel,predicted]+ 1
+    print("Confusion matrix:")
+    print( confusion)
+    print( confusion / total)
+    return confusion / total
 
