@@ -1,4 +1,5 @@
 import os
+import sys
 
 import cv2 as cv
 import cv2
@@ -49,23 +50,41 @@ testing_set = AEDataset(meta_file=TEST_LABEL_FILE_PATH, transform=transform, def
 test_dataloader = DataLoader(testing_set, batch_size=1, shuffle=False)
 
 # load CASAE
-ae1 = autoencoder()
-ae1.load_state_dict(torch.load("./models/ae1-11_class-default_net-default_loss.pt"))
-ae1.eval()
-
-ae2 = autoencoder()
-ae2.load_state_dict(torch.load("./models/ae2-11_class-default_net-default_loss.pt"))
-ae2.eval()
-
-casae = CASAE(ae1, ae2).to(device)
-
-
 def draw(img):
     plt.imshow(img.cpu().numpy().reshape((512, 512)), cmap='gray')
     plt.axis('off')
 
 
 if __name__ == '__main__':
+    if not sys.argv[1]:
+        sys.exit("Missing model stack id argument: 1 - default, 2 - dynamic loss, 3 - WSAP net")
+
+    if not sys.argv[2]:
+        sys.exit("Missing threshold")
+
+    stack_id = int(sys.argv[1])
+    threshold = int(sys.argv[2])
+
+    assert 0 <= threshold <= 255, "Invalid threshold"
+    stack_list = [
+        ("./models/ae1-11_class-default_net-default_loss.pt",
+         "./models/ae2-11_class-default_net-default_loss.pt",),
+        ("./models/ae1-11_class-default_net-dynamic_loss.pt",
+         "./models/ae2-11_class-default_net-dynamic_loss.pt",),
+    ]
+
+    assert 1 <= stack_id <= len(stack_list), "Unknown model stack id"
+
+    ae1_path, ae2_path = stack_list[stack_id - 1]
+    ae1 = autoencoder()
+    ae1.load_state_dict(torch.load(ae1_path))
+    ae1.eval()
+
+    ae2 = autoencoder()
+    ae2.load_state_dict(torch.load(ae2_path))
+    ae2.eval()
+
+    casae = CASAE(ae1, ae2).to(device)
 
     if not os.path.exists(DATASET_META_DIR):
         os.mkdir(DATASET_META_DIR)
@@ -84,7 +103,7 @@ if __name__ == '__main__':
 
             img_np = to_numpy(output).reshape((512, 512)).squeeze()
             # set the new pixel value to 1 if the original one is greater than `threshold` else 0
-            bin_img = binarize(img_np, 100/255)
+            bin_img = binarize(img_np, threshold/255)
             defect_mask_bool = np.array(defect_mask_np, dtype=bool)
             bin_img_bool = np.array(bin_img, dtype=bool)
 
