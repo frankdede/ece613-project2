@@ -43,6 +43,7 @@ def run():
     net.load_state_dict(torch.load(CNN_DICT))
     net = train(train_dataloader,1,net = net)
     test(net, test_dataloader)
+
     train(train_dataloader, 1)
 
 
