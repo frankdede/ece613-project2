@@ -142,3 +142,4 @@ webpack-stats*.json
 # generated metadata
 metadata/
 DAGM/
+MER_OUTPUT/
