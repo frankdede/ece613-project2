@@ -10,7 +10,6 @@ from cmp_cnn import train, test, Net
 num_classes = 10
 ohe = Lambda(lambda y: torch.zeros(num_classes, dtype=torch.float).scatter_(dim=0, index=torch.tensor(y), value=1))
 
-
 def run():
     training_set = DAGMDataset(meta_file=TRAINING_LABEL_FILE_PATH, target_transform=ohe, defect_only=True)
     testing_set = DAGMDataset(meta_file=TEST_LABEL_FILE_PATH, target_transform=ohe, defect_only=True)
@@ -44,6 +43,7 @@ def run():
     net.load_state_dict(torch.load(CNN_DICT))
     net = train(train_dataloader,1,net = net)
     test(net, test_dataloader)
+    train(train_dataloader, 1)
 
 
 if __name__ == '__main__':
