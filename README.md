@@ -1,11 +1,11 @@
 # ece613-project2
 
 Create directory DAGM
-.  
-├── DAGM
-│    ├──class1
-│    ├──class2
-│    ├──class3
-       ...
+.   <br />
+├── DAGM<br />
+│    ├──class1<br />
+│    ├──class2<br />
+│    ├──class3<br />
+       ...<br />
   
 Run label_gen.py
